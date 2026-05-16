@@ -269,7 +269,7 @@ MIT License - see LICENSE file
 
 ## Author
 
-[Your Name]
+[Patel Shrey]
 
 ## Support
 
