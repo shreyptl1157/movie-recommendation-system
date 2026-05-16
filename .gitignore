@@ -130,22 +130,18 @@ dmypy.json
 *~
 .DS_Store
 
-# Data files
-data/raw/*
-data/processed/*
-!data/.gitkeep
-
-# Model files
-data/models/*.pkl
-data/models/*.h5
-data/models/*.joblib
-!data/models/.gitkeep
+# Data
+data/
+*.csv
+*.db
+*.pkl
+*.pickle
 
 # Logs
 logs/
 *.log
 
-# Node modules (for frontend)
-node_modules/
-npm-debug.log
-yarn-error.log
+# Models
+models/trained/
+*.joblib
+*.h5

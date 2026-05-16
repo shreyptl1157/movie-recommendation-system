@@ -1,276 +1,387 @@
 # Movie Recommendation System
 
-A comprehensive movie recommendation system using multiple algorithms (Collaborative Filtering, Content-Based, Hybrid, and Deep Learning approaches).
+A comprehensive, production-ready movie recommendation system built with Python, FastAPI, and machine learning algorithms.
 
 ## Features
 
-- **Collaborative Filtering**: User-based and item-based recommendations
-- **Content-Based Filtering**: Genre, cast, and metadata-driven recommendations
-- **Hybrid Approach**: Combines multiple algorithms for better results
-- **Deep Learning**: Neural network-based recommendations
-- **REST API**: FastAPI endpoints for easy integration
-- **Database**: PostgreSQL for user data and ratings
-- **Caching**: Redis for fast recommendation retrieval
-- **Evaluation Metrics**: RMSE, MAE, Precision@K, Recall@K, NDCG
-- **Web UI**: Interactive frontend for testing recommendations
+- **Multiple Recommendation Algorithms**
+  - Collaborative Filtering (User-based, Item-based)
+  - Singular Value Decomposition (SVD)
+  - Content-Based Filtering
+  - Hybrid Approach (Ensemble)
+
+- **REST API** with FastAPI
+- **Database Support** (PostgreSQL)
+- **Redis Caching** for performance
+- **Comprehensive Evaluation Metrics**
+- **Docker & Docker Compose** support
+- **Full Test Suite**
+- **Production-Ready**
+
+## Quick Start
+
+### Using Docker (Recommended)
+
+```bash
+docker-compose up -d
+```
+
+Access the API at `http://localhost:8000`
+Swagger documentation at `http://localhost:8000/docs`
+
+### Local Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/shreyptl1157/movie-recommendation-system.git
+cd movie-recommendation-system
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set up environment
+cp .env.example .env
+
+# Run the API
+python -m api.main
+```
 
 ## Project Structure
 
 ```
 movie-recommendation-system/
-├── data/
-│   ├── raw/                    # Raw data files
-│   ├── processed/              # Processed data
-│   └── models/                 # Trained models
-├── src/
+├── models/                      # ML models
 │   ├── __init__.py
-│   ├── config.py              # Configuration settings
-│   ├── database/
-│   │   ├── __init__.py
-│   │   ├── db.py              # Database connection
-│   │   ├── models.py          # SQLAlchemy models
-│   │   └── crud.py            # CRUD operations
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── collaborative.py   # Collaborative filtering
-│   │   ├── content_based.py   # Content-based filtering
-│   │   ├── hybrid.py          # Hybrid approach
-│   │   └── neural_network.py  # Deep learning model
-│   ├── preprocessing/
-│   │   ├── __init__.py
-│   │   ├── data_loader.py     # Load and parse data
-│   │   ├── cleaner.py         # Data cleaning
-│   │   └── feature_engineer.py # Feature engineering
-│   ├── api/
-│   │   ├── __init__.py
-│   │   ├── main.py            # FastAPI app
-│   │   ├── routes/
-│   │   │   ├── __init__.py
-│   │   │   ├── recommendations.py
-│   │   │   ├── movies.py
-│   │   │   ├── users.py
-│   │   │   └── ratings.py
-│   │   └── schemas.py         # Pydantic schemas
-│   ├── cache/
-│   │   ├── __init__.py
-│   │   └── redis_cache.py     # Redis caching
-│   ├── evaluation/
-│   │   ├── __init__.py
-│   │   ├── metrics.py         # Evaluation metrics
-│   │   └── validator.py       # Cross-validation
-│   └── utils/
-│       ├── __init__.py
-│       ├── logger.py          # Logging utilities
-│       └── helpers.py         # Helper functions
-├── notebooks/
-│   ├── 01_data_exploration.ipynb
-│   ├── 02_collaborative_filtering.ipynb
-│   ├── 03_content_based_filtering.ipynb
-│   ├── 04_hybrid_model.ipynb
-│   ├── 05_deep_learning_model.ipynb
-│   └── 06_model_evaluation.ipynb
-├── tests/
+│   ├── base.py                 # Abstract base class
+│   ├── collaborative.py        # CF algorithms
+│   ├── content_based.py        # Content-based filtering
+│   ├── svd.py                  # SVD implementation
+│   └── hybrid.py               # Ensemble approach
+├── api/                         # FastAPI application
+│   ├── __init__.py
+│   ├── main.py                 # App entry point
+│   ├── routes.py               # API endpoints
+│   ├── schemas.py              # Pydantic models
+│   └── dependencies.py         # Dependency injection
+├── data/                        # Data handling
+│   ├── __init__.py
+│   ├── loader.py               # Data loaders
+│   └── datasets.py             # Dataset management
+├── utils/                       # Utilities
+│   ├── __init__.py
+│   ├── preprocessing.py        # Data preprocessing
+│   ├── evaluation.py           # Evaluation metrics
+│   ├── cache.py                # Caching layer
+│   └── logger.py               # Logging setup
+├── config/                      # Configuration
+│   ├── __init__.py
+│   └── settings.py             # Settings management
+├── tests/                       # Test suite
 │   ├── __init__.py
 │   ├── test_models.py
 │   ├── test_api.py
-│   ├── test_preprocessing.py
-│   └── test_evaluation.py
-├── frontend/
-│   ├── public/
-│   │   └── index.html
-│   ├── src/
-│   │   ├── App.jsx
-│   │   ├── components/
-│   │   │   ├── SearchMovie.jsx
-│   │   │   ├── RecommendationList.jsx
-│   │   │   └── RatingForm.jsx
-│   │   └── styles/
-│   │       └── App.css
-│   └── package.json
-├── docker/
-│   ├── Dockerfile
-│   ├── docker-compose.yml
-│   └── .dockerignore
-├── requirements.txt
-├── setup.py
-├── .env.example
-├── .gitignore
-└── README.md
+│   └── test_data.py
+├── docker-compose.yml          # Docker composition
+├── Dockerfile                  # Docker image
+├── requirements.txt            # Python dependencies
+├── .env.example                # Environment template
+├── .gitignore                  # Git ignore rules
+└── README.md                   # This file
 ```
 
-## Installation
+## API Endpoints
 
-### Prerequisites
-- Python 3.9+
-- PostgreSQL 12+
-- Redis 6+
-- Docker & Docker Compose (optional)
-
-### Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/shreyptl1157/movie-recommendation-system.git
-   cd movie-recommendation-system
-   ```
-
-2. **Create virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Setup environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
-
-5. **Initialize database**
-   ```bash
-   python -m src.database.db init_db
-   ```
-
-6. **Download dataset**
-   ```bash
-   python -m src.preprocessing.data_loader download_movielens
-   ```
-
-### Using Docker
+### Get Recommendations
 
 ```bash
-docker-compose -f docker/docker-compose.yml up -d
+POST /api/v1/recommendations
+
+Request:
+{
+  "user_id": 1,
+  "n_recommendations": 10,
+  "algorithm": "hybrid"
+}
+
+Response:
+{
+  "user_id": 1,
+  "recommendations": [
+    {
+      "movie_id": 150,
+      "title": "Apollo 13",
+      "score": 4.5
+    },
+    ...
+  ]
+}
 ```
 
-## Usage
+### Get Similar Movies
 
-### Training Models
-
-```python
-from src.models.collaborative import CollaborativeFilter
-from src.preprocessing.data_loader import load_movielens
-
-# Load data
-ratings_df = load_movielens('ml-1m')
-
-# Train collaborative filtering model
-cf_model = CollaborativeFilter(algorithm='svd')
-cf_model.fit(ratings_df)
-cf_model.save('data/models/collaborative_svd.pkl')
-```
-
-### Getting Recommendations
-
-```python
-from src.models.hybrid import HybridRecommender
-
-# Initialize hybrid model
-recommender = HybridRecommender()
-recommender.load_models()
-
-# Get recommendations
-user_id = 1
-recommendations = recommender.recommend(user_id, n_recommendations=10)
-print(recommendations)
-```
-
-### API Endpoints
-
-Start the API server:
 ```bash
-uvicorn src.api.main:app --reload
+GET /api/v1/movies/{movie_id}/similar?n=10
+
+Response:
+{
+  "movie_id": 1,
+  "title": "Toy Story",
+  "similar_movies": [
+    {
+      "movie_id": 3,
+      "title": "Grumpier Old Men",
+      "similarity_score": 0.85
+    },
+    ...
+  ]
+}
 ```
 
-Available endpoints:
-- `GET /api/recommendations/{user_id}` - Get recommendations for a user
-- `GET /api/movies/{movie_id}` - Get movie details
-- `POST /api/ratings` - Submit a movie rating
-- `GET /api/movies/search` - Search movies
-- `GET /api/health` - Health check
+### Add/Update Rating
 
-## Algorithms
+```bash
+POST /api/v1/ratings
 
-### 1. Collaborative Filtering
-- **User-Based**: k-NN approach
-- **Item-Based**: Cosine similarity
-- **Matrix Factorization**: SVD, NMF
+Request:
+{
+  "user_id": 1,
+  "movie_id": 150,
+  "rating": 4.5,
+  "timestamp": 1234567890
+}
 
-### 2. Content-Based Filtering
-- TF-IDF vectorization of movie descriptions
-- Genre and cast matching
-- Cosine similarity ranking
+Response:
+{
+  "user_id": 1,
+  "movie_id": 150,
+  "rating": 4.5,
+  "status": "success"
+}
+```
 
-### 3. Hybrid Model
-- Weighted combination of CF and content-based
-- Addresses cold-start problem
-- Improves diversity
+### Get Movie Details
 
-### 4. Deep Learning
-- Neural collaborative filtering
-- Embedding-based model
-- Dropout and batch normalization
+```bash
+GET /api/v1/movies/{movie_id}
 
-## Evaluation Metrics
+Response:
+{
+  "movie_id": 1,
+  "title": "Toy Story",
+  "genres": ["Adventure", "Animation", "Children"],
+  "release_year": 1995,
+  "average_rating": 4.15,
+  "num_ratings": 215
+}
+```
 
-- **RMSE** (Root Mean Squared Error)
-- **MAE** (Mean Absolute Error)
-- **Precision@K** (Proportion of relevant recommendations in top-K)
-- **Recall@K** (Proportion of relevant items in top-K)
-- **NDCG** (Normalized Discounted Cumulative Gain)
-- **Coverage** (Percentage of catalog covered)
-- **Diversity** (Variety in recommendations)
+### Health Check
+
+```bash
+GET /api/v1/health
+
+Response:
+{
+  "status": "healthy",
+  "timestamp": "2026-05-16T10:30:00Z"
+}
+```
+
+## Available Algorithms
+
+### 1. User-Based Collaborative Filtering
+Recommends movies liked by similar users.
+
+**Use when:**
+- You have user-user similarity data
+- Users with similar preferences exist
+- Dataset has sufficient user ratings
+
+### 2. Item-Based Collaborative Filtering
+Recommends movies similar to ones the user has rated highly.
+
+**Use when:**
+- Movie-movie similarity is important
+- You want stable recommendations
+- User history is limited
+
+### 3. SVD (Singular Value Decomposition)
+Matrix factorization approach that uncovers latent factors.
+
+**Use when:**
+- You need high accuracy
+- You have sparse rating matrices
+- Computational resources are available
+
+### 4. Content-Based Filtering
+Recommends movies based on movie attributes (genre, cast, etc.).
+
+**Use when:**
+- Movie metadata is rich
+- You have many new movies
+- User has few ratings
+
+### 5. Hybrid
+Combines all approaches with weighted ensemble.
+
+**Use when:**
+- You want best results
+- You can afford computation
+- Production quality is critical
 
 ## Configuration
 
-Edit `src/config.py` for:
-- Database connection
-- Redis connection
-- Model hyperparameters
-- API settings
-- Logging configuration
+Edit `.env` to customize:
 
-## Data
+```env
+# API Settings
+API_HOST=0.0.0.0
+API_PORT=8000
+API_DEBUG=false
 
-Default dataset: MovieLens 1M
-- 1,000,209 ratings
-- 3,706 movies
-- 6,040 users
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/movies
+REDIS_URL=redis://localhost:6379/0
 
-Alternatives:
-- MovieLens 10M
-- MovieLens 25M
-- Custom dataset
+# Model Configuration
+SVD_N_FACTORS=100
+SVD_LR=0.01
+SVD_REG=0.02
 
-## Performance
+# Data
+DATASET=movielens-1m
+DATA_PATH=./data
 
-Benchmarks on MovieLens 1M:
-- Collaborative Filtering: ~0.87 RMSE
-- Content-Based: ~0.92 RMSE
-- Hybrid: ~0.85 RMSE
-- Deep Learning: ~0.82 RMSE
+# Logging
+LOG_LEVEL=INFO
+```
+
+## Evaluation Metrics
+
+The system includes comprehensive evaluation metrics:
+
+- **RMSE** - Root Mean Squared Error
+- **MAE** - Mean Absolute Error
+- **Precision@K** - Precision of top-K recommendations
+- **Recall@K** - Recall of top-K recommendations
+- **NDCG** - Normalized Discounted Cumulative Gain
+- **Coverage** - Percentage of catalog recommended
+- **Diversity** - Variety in recommendations
+
+## Testing
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=.
+
+# Run specific test file
+pytest tests/test_models.py
+```
+
+## Performance Optimization
+
+1. **Caching**: Redis caches recommendations and movie data
+2. **Database Indexing**: Proper indexes on user/movie IDs
+3. **Matrix Factorization**: Fast computation of latent factors
+4. **Batch Processing**: Process multiple requests efficiently
+
+## Deployment
+
+### Docker
+
+```bash
+# Build image
+docker build -t movie-recommender .
+
+# Run container
+docker run -p 8000:8000 movie-recommender
+```
+
+### Docker Compose
+
+```bash
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f api
+
+# Stop services
+docker-compose down
+```
+
+### Cloud Deployment
+
+- **AWS**: Use ECS, RDS for PostgreSQL, ElastiCache for Redis
+- **Google Cloud**: Cloud Run, Cloud SQL, Memorystore
+- **Azure**: App Service, Azure Database, Azure Cache
+- **Heroku**: One-click deployment with add-ons
+
+## Troubleshooting
+
+### Port Already in Use
+```bash
+# Change port in .env
+API_PORT=8001
+```
+
+### Database Connection Issues
+```bash
+# Check database is running
+# Update DATABASE_URL in .env
+# Run migrations if needed
+```
+
+### Out of Memory
+```bash
+# Reduce SVD_N_FACTORS
+# Use streaming data loader
+# Implement pagination
+```
 
 ## Contributing
 
-Contributions are welcome! Please:
 1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-MIT License - see LICENSE file
+MIT License - see LICENSE file for details
 
 ## Author
 
-[Patel Shrey]
+Shrey Patel (@shreyptl1157)
+
+## Acknowledgments
+
+- MovieLens Dataset - University of Minnesota
+- Surprise Library - Scikit-Surprise contributors
+- FastAPI - Sebastián Ramírez
 
 ## Support
 
-For issues, questions, or suggestions, please open a GitHub issue.
+For issues, questions, or suggestions:
+1. Check existing issues
+2. Create a new issue with details
+3. Include error messages and reproduction steps
+
+## Roadmap
+
+- [ ] Deep Learning models (Neural Collaborative Filtering)
+- [ ] Real-time streaming recommendations
+- [ ] Explainable AI features
+- [ ] A/B testing framework
+- [ ] Advanced user segmentation
+- [ ] Mobile app integration
+- [ ] GraphQL API
+- [ ] Analytics dashboard

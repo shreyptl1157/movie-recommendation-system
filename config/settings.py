@@ -1,111 +1,79 @@
+from pydantic_settings import BaseSettings
+from typing import List, Optional
+from functools import lru_cache
 import os
-from datetime import timedelta
-from dotenv import load_dotenv
 
-load_dotenv()
-
-class Config:
-    """Base configuration"""
+class Settings(BaseSettings):
+    """Application settings from environment variables."""
     
-    # Flask
-    SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'dev-secret-key-change-in-production')
-    DEBUG = os.getenv('DEBUG', 'False') == 'True'
-    TESTING = os.getenv('API_TESTING', 'False') == 'True'
+    # API Configuration
+    api_host: str = "0.0.0.0"
+    api_port: int = 8000
+    api_debug: bool = False
+    api_workers: int = 4
     
-    # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        'DATABASE_URL',
-        'postgresql://localhost/movie_recommendations'
-    )
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ECHO = os.getenv('DATABASE_ECHO', 'False') == 'True'
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_size': int(os.getenv('DATABASE_POOL_SIZE', 10)),
-        'pool_recycle': 3600,
-        'pool_pre_ping': True,
-        'max_overflow': int(os.getenv('DATABASE_MAX_OVERFLOW', 20)),
-    }
+    # Database Configuration
+    database_url: str = "postgresql://postgres:password@localhost:5432/movie_recommender"
+    database_pool_size: int = 20
+    database_max_overflow: int = 40
     
-    # Redis
-    REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-    CACHE_TTL = int(os.getenv('REDIS_CACHE_TTL', 3600))
-    RECOMMENDATION_TTL = int(os.getenv('REDIS_RECOMMENDATION_TTL', 1800))
+    # Redis Configuration
+    redis_url: str = "redis://localhost:6379/0"
+    redis_cache_ttl: int = 3600
     
-    # JWT
-    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'dev-secret-key')
-    JWT_ALGORITHM = os.getenv('JWT_ALGORITHM', 'HS256')
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(
-        seconds=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 3600))
-    )
+    # Model Configuration
+    svd_n_factors: int = 100
+    svd_n_epochs: int = 20
+    svd_lr_all: float = 0.01
+    svd_reg_all: float = 0.02
+    svd_random_state: int = 42
+    
+    # Content-Based Configuration
+    content_min_df: int = 5
+    content_max_df: float = 0.8
+    content_max_features: int = 5000
+    
+    # Collaborative Configuration
+    collab_k_neighbors: int = 10
+    collab_min_common_items: int = 2
+    
+    # Data Configuration
+    dataset: str = "movielens-1m"
+    data_path: str = "./data"
+    data_download: bool = True
+    
+    # Feature Engineering
+    feature_engineer_enable: bool = True
+    feature_engineer_genres: bool = True
+    feature_engineer_temporal: bool = True
     
     # Logging
-    LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
-    LOG_FILE = os.getenv('LOG_FILE', 'logs/app.log')
-    LOG_MAX_BYTES = int(os.getenv('LOG_MAX_BYTES', 10485760))
-    LOG_BACKUP_COUNT = int(os.getenv('LOG_BACKUP_COUNT', 10))
+    log_level: str = "INFO"
+    log_file: str = "./logs/app.log"
+    log_format: str = "json"
     
-    # Models
-    MODEL_PATH = os.getenv('MODEL_PATH', 'models/saved_models')
-    DEFAULT_MODEL = os.getenv('DEFAULT_MODEL', 'hybrid')
-    NUM_RECOMMENDATIONS = int(os.getenv('NUM_RECOMMENDATIONS', 10))
-    MIN_RATINGS_FOR_CF = int(os.getenv('MIN_RATINGS_FOR_CF', 5))
-    COLD_START_STRATEGY = os.getenv('COLD_START_STRATEGY', 'popularity')
+    # Evaluation
+    eval_k_values: List[int] = [5, 10, 20]
+    eval_threshold: float = 3.5
     
-    # Data
-    DATA_PATH = os.getenv('DATA_PATH', 'data')
-    TRAIN_TEST_SPLIT = float(os.getenv('TRAIN_TEST_SPLIT', 0.2))
-    VALIDATION_SPLIT = float(os.getenv('VALIDATION_SPLIT', 0.1))
-    RANDOM_SEED = int(os.getenv('RANDOM_SEED', 42))
+    # Performance
+    max_recommendations: int = 100
+    default_n_recommendations: int = 10
+    recommendation_timeout: int = 30
     
-    # Training
-    EPOCHS = int(os.getenv('EPOCHS', 50))
-    BATCH_SIZE = int(os.getenv('BATCH_SIZE', 128))
-    LEARNING_RATE = float(os.getenv('LEARNING_RATE', 0.001))
-    EARLY_STOPPING_PATIENCE = int(os.getenv('EARLY_STOPPING_PATIENCE', 5))
-    
-    # Monitoring
-    MONITORING_ENABLED = os.getenv('MONITORING_ENABLED', 'True') == 'True'
-    SENTRY_DSN = os.getenv('SENTRY_DSN', '')
-    PROMETHEUS_ENABLED = os.getenv('PROMETHEUS_ENABLED', 'True') == 'True'
-    
-    # API
-    API_HOST = os.getenv('API_HOST', '0.0.0.0')
-    API_PORT = int(os.getenv('API_PORT', 5000))
-    API_WORKERS = int(os.getenv('API_WORKERS', 4))
+    # Security
+    secret_key: str = "your-secret-key-change-this"
+    algorithm: str = "HS256"
+    token_expire_minutes: int = 1440
     
     # Environment
-    ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
-
-
-class DevelopmentConfig(Config):
-    """Development configuration"""
-    DEBUG = True
-    SQLALCHEMY_ECHO = True
-    LOG_LEVEL = 'DEBUG'
-
-
-class ProductionConfig(Config):
-    """Production configuration"""
-    DEBUG = False
-    SQLALCHEMY_ECHO = False
-    LOG_LEVEL = 'WARNING'
-
-
-class TestingConfig(Config):
-    """Testing configuration"""
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-    CACHE_TTL = 10
-    RECOMMENDATION_TTL = 10
-
-
-def get_config():
-    """Get configuration based on environment"""
-    env = os.getenv('ENVIRONMENT', 'development')
+    environment: str = "development"
     
-    if env == 'production':
-        return ProductionConfig()
-    elif env == 'testing':
-        return TestingConfig()
-    else:
-        return DevelopmentConfig()
+    class Config:
+        env_file = ".env"
+        case_sensitive = False
+
+@lru_cache()
+def get_settings() -> Settings:
+    """Get cached settings instance."""
+    return Settings()
